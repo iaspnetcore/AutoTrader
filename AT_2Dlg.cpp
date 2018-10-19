@@ -21,9 +21,6 @@ std::mutex mtx;
 const int nPort = 9000;
 const char* szAddress = "139.196.38.147";
 
-
-
-
 CAT_2Dlg* pThis = nullptr;
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -140,8 +137,6 @@ BOOL CAT_2Dlg::OnInitDialog()
 	GetWindowText(szCaption, MAX_PATH);
 	_stprintf_s(szCaption, _T("%s %s"), szCaption, szVersion);	
 	SetWindowText(szCaption);
-
-
 
 	pThis = this;
 	InitialAutoTrader2();
@@ -297,6 +292,15 @@ void CAT_2Dlg::OnBnClickedBtnStart()
 	else {
 
 		SetDlgItemText(IDC_BTN_START, _T("预警开始"));
+		GetDlgItem(IDC_EDT_BUY_AMOUNT)->EnableWindow(true);
+		GetDlgItem(IDC_EDT_BUY_COUNT)->EnableWindow(true);
+		GetDlgItem(IDC_DATE_BUY1)->EnableWindow(true);
+		GetDlgItem(IDC_DATE_BUY2)->EnableWindow(true);
+		GetDlgItem(IDC_EDT_SELL_AMOUNT)->EnableWindow(true);
+		GetDlgItem(IDC_EDT_SELL_COUNT)->EnableWindow(true);
+		GetDlgItem(IDC_DATE_SELL1)->EnableWindow(true);
+		GetDlgItem(IDC_DATE_SELL2)->EnableWindow(true);
+
 		m_hexinKeepActivate = false;
 		m_hexinWarnBuy = false;
 		m_hexinWarnSell = false;
@@ -461,11 +465,6 @@ void CAT_2Dlg::InitialAutoTrader2()
 		m_file.Write(&UNICODE_TXT_FLG, 2);
 	}
 
-
-	//保持对同花顺交易软件的定时激活
-	std::thread thread_updateBalance(KeepHexinActivate, (LPVOID)this);
-	thread_updateBalance.detach();
-
 }
 
 void CAT_2Dlg::InitialParam()
@@ -496,6 +495,14 @@ void CAT_2Dlg::InitialParam()
 	m_nSellCount = atoi(T2A(strSellCount));
 	m_nSellAmount = atoi(T2A(strSellAmount));
 
+	GetDlgItem(IDC_EDT_BUY_AMOUNT)->EnableWindow(false);
+	GetDlgItem(IDC_EDT_BUY_COUNT)->EnableWindow(false);
+	GetDlgItem(IDC_DATE_BUY1)->EnableWindow(false);
+	GetDlgItem(IDC_DATE_BUY2)->EnableWindow(false);
+	GetDlgItem(IDC_EDT_SELL_AMOUNT)->EnableWindow(false);
+	GetDlgItem(IDC_EDT_SELL_COUNT)->EnableWindow(false);
+	GetDlgItem(IDC_DATE_SELL1)->EnableWindow(false);
+	GetDlgItem(IDC_DATE_SELL2)->EnableWindow(false);
 
 	m_hexin.GetAllHwnd();	
 	m_hexin.KeepHexinActivate();
