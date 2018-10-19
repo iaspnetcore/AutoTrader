@@ -61,7 +61,7 @@ BOOL CAT_2App::InitInstance()
 	CShellManager *pShellManager = new CShellManager;
 
 	// 激活“Windows Native”视觉管理器，以便在 MFC 控件中启用主题
-	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
+	// CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 
 	// 标准初始化
 	// 如果未使用这些功能并希望减小

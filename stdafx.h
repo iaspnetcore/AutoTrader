@@ -5,6 +5,8 @@
 
 #pragma once
 
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS  
+
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN            // 从 Windows 头中排除极少使用的资料
 #endif
@@ -12,7 +14,10 @@
 #include "targetver.h"
 
 
-#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // 某些 CString 构造函数将是显式的
+
+
+    // 某些 CString 构造函数将是显式的
+//#define _AFX_NO_MFC_CONTROLS_IN_DIALOGS
 
 // 关闭 MFC 对某些常见但经常可放心忽略的警告消息的隐藏
 #define _AFX_ALL_WARNINGS
@@ -33,6 +38,8 @@
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
 #include <afxcontrolbars.h>     // 功能区和控件条的 MFC 支持
+
+
 
 
 

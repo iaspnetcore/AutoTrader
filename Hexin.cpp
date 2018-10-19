@@ -90,7 +90,7 @@ bool CHexin::FlashBuyStock(CString strStock, CString strPrice, CString strAmount
 		buyHwnd = GetBuyStockHwnd();	
 	buyHwnd = hBuyStock;
 
-	int nSelMktIndex, nSelMethodIndex;
+	int nSelMktIndex;
 	nSelMktIndex = ::SendMessage(hToolBarMarket, CB_GETCURSEL, 0, 0);
 	if (strStock.Left(1).Compare( _T("6")) ==0 && nSelMktIndex != 0) {
 		::SendMessage(hToolBarMarket, CB_SETCURSEL, 0, 0);		

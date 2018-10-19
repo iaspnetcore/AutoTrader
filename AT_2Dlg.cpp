@@ -25,7 +25,7 @@ CAT_2Dlg* pThis = nullptr;
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
-class CAboutDlg : public CDialogEx
+class CAboutDlg : public CDialog
 {
 public:
 	CAboutDlg();
@@ -43,16 +43,16 @@ protected:
 	DECLARE_MESSAGE_MAP()
 };
 
-CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
+CAboutDlg::CAboutDlg() : CDialog(IDD_ABOUTBOX)
 {
 }
 
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialogEx::DoDataExchange(pDX);
+	CDialog::DoDataExchange(pDX);
 }
 
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 END_MESSAGE_MAP()
 
 
@@ -61,7 +61,7 @@ END_MESSAGE_MAP()
 
 
 CAT_2Dlg::CAT_2Dlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(IDD_AT_2_DIALOG, pParent)
+	: CDialog(IDD_AT_2_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -74,7 +74,7 @@ CAT_2Dlg::~CAT_2Dlg()
 
 void CAT_2Dlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialogEx::DoDataExchange(pDX);
+	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST, m_listCtrl);
 	DDX_Control(pDX, IDC_DATE_BUY1, m_time1);
 	DDX_Control(pDX, IDC_DATE_BUY2, m_time2);
@@ -84,7 +84,7 @@ void CAT_2Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LAB_ALL, m_labAsset);
 }
 
-BEGIN_MESSAGE_MAP(CAT_2Dlg, CDialogEx)
+BEGIN_MESSAGE_MAP(CAT_2Dlg, CDialog)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
@@ -100,7 +100,7 @@ END_MESSAGE_MAP()
 
 BOOL CAT_2Dlg::OnInitDialog()
 {
-	CDialogEx::OnInitDialog();
+	CDialog::OnInitDialog();
 
 	// 将“关于...”菜单项添加到系统菜单中。
 
@@ -177,7 +177,7 @@ void CAT_2Dlg::OnSysCommand(UINT nID, LPARAM lParam)
 	}
 	else
 	{
-		CDialogEx::OnSysCommand(nID, lParam);
+		CDialog::OnSysCommand(nID, lParam);
 	}
 }
 
@@ -206,7 +206,7 @@ void CAT_2Dlg::OnPaint()
 	}
 	else
 	{
-		CDialogEx::OnPaint();
+		CDialog::OnPaint();
 	}
 }
 
@@ -650,7 +650,7 @@ void CAT_2Dlg::Recort(CString code_, CString name_, CString oper_, CString amoun
 
 HBRUSH CAT_2Dlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 
 	// TODO:  在此更改 DC 的任何特性
 	int STATIC_FONT[] = { IDC_LAB_ENABLE ,IDC_LAB_ALL };
@@ -679,7 +679,7 @@ void CAT_2Dlg::OnClose()
 	m_hexinWarnSell = true;
 	m_hexinUpdateBalance = true;
 
-	CDialogEx::OnClose();
+	CDialog::OnClose();
 }
 
 
@@ -723,8 +723,7 @@ void CAT_2Dlg::GetHighLimit(LPVOID lp) {
 		if (i == acode.GetCount() - 1)
 			pThis->m_highLimit.insert(std::pair<CString, CString>(acode.GetAt(i).Left(6), aprice.GetAt(i).Left(aprice.GetAt(i).GetLength()-3)));;
 		pThis->m_highLimit.insert(std::pair<CString, CString>(acode.GetAt(i).Left(6), aprice.GetAt(i)));
-	}
-		
+	}		
 
 	if (!pThis->m_highLimit.size())
 		AfxMessageBox(_T("未能从服务器获取涨停价格表"));

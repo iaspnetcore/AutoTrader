@@ -20,7 +20,7 @@
 #include <map>
 
 // CAT_2Dlg 对话框
-class CAT_2Dlg : public CDialogEx
+class CAT_2Dlg : public CDialog
 {
 // 构造
 public:

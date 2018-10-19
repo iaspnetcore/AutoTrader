@@ -280,4 +280,5 @@ DWORD CDlgFlashBuy::GetBaseAddr(HWND hwnd)
 	EnumerateLoadedModules64(m_dzhHandle,
 		(PENUMLOADED_MODULES_CALLBACK64)MyEnumerateLoadedModulesProc64,
 		(PVOID)NULL);
+	return 0;
 }
