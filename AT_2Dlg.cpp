@@ -441,7 +441,7 @@ void CAT_2Dlg::InitialAutoTrader2()
 	m_listCtrl.InsertColumn(0, _T("操作"), LVCFMT_CENTER, 65);//插入列
 	m_listCtrl.InsertColumn(0, _T("名称"), LVCFMT_CENTER, 80);//插入列
 	m_listCtrl.InsertColumn(0, _T("代码"), LVCFMT_CENTER, 80);//插入列
-	m_listCtrl.InsertColumn(0, _T("时间"), LVCFMT_CENTER, 120);//插入列
+	m_listCtrl.InsertColumn(0, _T("时间"), LVCFMT_CENTER, 90);//插入列
 
 	LVCOLUMN col;
 	col.mask = LVCF_FMT;
@@ -535,13 +535,15 @@ void CAT_2Dlg::Recort(int amount_ , CString oper)
 	if (oper.Compare(_T("买入")) == 0) {
 		code = m_hexin.GetStockCodeBuy();
 		name = m_hexin.GetStockNameBuy();
+		price.Format(_T("%.2f"), m_hexin.GetHighLimit());
 	}else {
 		code = m_hexin.GetStockCodeSell();
 		name = m_hexin.GetStockNameSell();
+		price.Format(_T("%.2f"), m_hexin.GetLowLimit());
 	}
 
 	amount.Format(_T("%d"), amount_);
-	price.Format(_T("%f"), m_hexin.GetLowLimit());
+	
 	int nRow = m_listCtrl.InsertItem(0, strTime);
 	m_listCtrl.SetItemText(nRow, 1, code);
 	m_listCtrl.SetItemText(nRow, 2, name);
