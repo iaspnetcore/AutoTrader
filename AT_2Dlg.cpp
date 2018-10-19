@@ -441,7 +441,7 @@ void CAT_2Dlg::InitialAutoTrader2()
 	m_listCtrl.InsertColumn(0, _T("操作"), LVCFMT_CENTER, 65);//插入列
 	m_listCtrl.InsertColumn(0, _T("名称"), LVCFMT_CENTER, 80);//插入列
 	m_listCtrl.InsertColumn(0, _T("代码"), LVCFMT_CENTER, 80);//插入列
-	m_listCtrl.InsertColumn(0, _T("时间"), LVCFMT_CENTER, 90);//插入列
+	m_listCtrl.InsertColumn(0, _T("时间"), LVCFMT_CENTER, 85);//插入列
 
 	LVCOLUMN col;
 	col.mask = LVCF_FMT;
