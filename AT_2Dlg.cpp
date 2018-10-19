@@ -532,8 +532,14 @@ void CAT_2Dlg::Recort(int amount_ , CString oper)
 	CTime time = CTime::GetCurrentTime();
 	CString strTime = time.Format("%H:%M:%S");
 	CString code, name, amount, price;
-	code = m_hexin.GetStockCodeBuy();
-	name = m_hexin.GetStockNameBuy();
+	if (oper.Compare(_T("买入")) == 0) {
+		code = m_hexin.GetStockCodeBuy();
+		name = m_hexin.GetStockNameBuy();
+	}else {
+		code = m_hexin.GetStockCodeSell();
+		name = m_hexin.GetStockNameSell();
+	}
+
 	amount.Format(_T("%d"), amount_);
 	price.Format(_T("%f"), m_hexin.GetLowLimit());
 	int nRow = m_listCtrl.InsertItem(0, strTime);
@@ -552,16 +558,13 @@ void CAT_2Dlg::Recort(int amount_ , CString oper)
 void CAT_2Dlg::OnBnClickedBtnFlush()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	if (m_flashBuy == nullptr)
-	{	
+	if (m_flashBuy == nullptr){	
 		m_flashBuy = std::make_shared<CDlgFlashBuy>();
 		m_flashBuy->Create(IDD_DLG_QUCIKINS, GetDesktopWindow());
 		m_flashBuy->SetCallBack(CallBack_FlushBuy);
 		m_flashBuy->ShowWindow(TRUE);
 		std::thread t(GetHighLimit, pThis);
-		t.detach();
-		Sleep(100);
-		//CallBack_FlushBuy(_T("601288"),100);
+		t.detach();		
 	}
 	else if(m_flashBuy->IsWindowVisible()){
 		m_flashBuy->ShowWindow(false);
