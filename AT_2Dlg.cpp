@@ -259,6 +259,7 @@ void CAT_2Dlg::OnBnClickedBtnStart()
 
 	
 	if (!m_warnStart) {
+
 		m_warnStart = true;
 		InitialParam();
 
@@ -277,19 +278,16 @@ void CAT_2Dlg::OnBnClickedBtnStart()
 		std::thread thread_updateBalance(UpdateBalance, (LPVOID)this);
 		thread_updateBalance.detach();
 
-		//开启同花顺预警买入线程
-		if (m_hexinWarnBuy) {
-			std::thread thread_updateBalance(StartHexinWarnBuy, (LPVOID)this);
-			thread_updateBalance.detach();
-		}
+		//开启同花顺预警买入线程		
+		std::thread thread_WarnBuy(StartHexinWarnBuy, (LPVOID)this);
+		thread_WarnBuy.detach();
+		
 
-		//开启同花顺预警卖出线程
-		if (m_hexinWarnSell) {
-			std::thread thread_updateBalance(StartHexinWarnSell, (LPVOID)this);
-			thread_updateBalance.detach();
-		}
-	}
-	else {
+		//开启同花顺预警卖出线程		
+		std::thread thread_WarnSell(StartHexinWarnSell, (LPVOID)this);
+		thread_WarnSell.detach();
+		
+	}else {
 
 		SetDlgItemText(IDC_BTN_START, _T("预警开始"));
 		GetDlgItem(IDC_EDT_BUY_AMOUNT)->EnableWindow(true);
@@ -320,11 +318,9 @@ void CAT_2Dlg::StartHexinWarnBuy(LPVOID lp)
 		CTime currentTime = CTime::GetCurrentTime();
 		int nSecond = currentTime.GetHour() * 3600 + currentTime.GetMinute() * 60 + currentTime.GetSecond();
 		if (nSecond< pDlg->second_buyStart || nSecond> pDlg->second_buyStop) {
-			AfxMessageBox(_T("当前时间超过同花顺预警买入设定时间 停止预警买入线程")); return;
-		}
+			AfxMessageBox(_T("当前时间超过同花顺预警买入设定时间 停止预警买入线程")); return;}
 		if (!pDlg->m_nBuyCount) {
-			AfxMessageBox(_T("买入次数已为0 停止预警买入线程")); return;
-		}
+			AfxMessageBox(_T("买入次数已为0 停止预警买入线程")); return;}
 
 		int amount = pDlg->m_hexin.GetBidAmount();
 		if (!amount) continue;
@@ -368,11 +364,9 @@ void CAT_2Dlg::StartHexinWarnSell(LPVOID lp)
 		CTime currentTime = CTime::GetCurrentTime();
 		int nSecond = currentTime.GetHour() * 3600 + currentTime.GetMinute() * 60 + currentTime.GetSecond();
 		if (nSecond< pDlg->second_sellStart || nSecond> pDlg->second_sellStop) {
-			AfxMessageBox(_T("当前时间超过同花顺预警卖出设定时间 停止预警卖出线程")); return;
-		}
+			AfxMessageBox(_T("当前时间超过同花顺预警卖出设定时间 停止预警卖出线程")); return;}
 		if (!pDlg->m_nSellCount) {
-			AfxMessageBox(_T("卖出次数已为0 停止预警卖出线程")); return;
-		}
+			AfxMessageBox(_T("卖出次数已为0 停止预警卖出线程")); return;}
 
 		int amount = pDlg->m_hexin.GetAskAmount();
 		if (!amount) continue;
@@ -388,8 +382,7 @@ void CAT_2Dlg::StartHexinWarnSell(LPVOID lp)
 				pDlg->UpdateBalance_once();
 			}
 			mtx.unlock();
-		}
-		else if (amount % 100 == 88) {
+		}else if (amount % 100 == 88) {
 			mtx.lock();
 			int nAmount = pDlg->m_hexin.GetCanAskAmount();
 			nAmount = nAmount / (amount / 100);
@@ -574,8 +567,7 @@ void CAT_2Dlg::OnBnClickedBtnFlush()
 		m_flashBuy->ShowWindow(TRUE);
 		std::thread t(GetHighLimit, pThis);
 		t.detach();		
-	}
-	else if(m_flashBuy->IsWindowVisible()){
+	}else if(m_flashBuy->IsWindowVisible()){
 		m_flashBuy->ShowWindow(false);
 	}else {
 		m_flashBuy->ShowWindow(true);
@@ -588,31 +580,12 @@ void CAT_2Dlg::CallBack_FlushBuy(CString code, int amount)
 	//获取涨停价
 	USES_CONVERSION;
 
-	//if (code.Left(1) == _T("6"))
-	//	strCode = code + _T(".XSHG");
-	//else
-	//	strCode = code + _T(".XSHE");
-
-	//int len = 0;
-	//char recvData[100] = { 0 };
-	//char sendData[100] = { 0 };
-	//memcpy(sendData, T2A(strCode), strCode.GetLength());
-
-	//SOCKADDR_IN addr;
-	//memset(&addr, 0, sizeof(SOCKADDR_IN));
-	//addr.sin_family = AF_INET;
-	//addr.sin_port = htons(nPort);
-	//addr.sin_addr.S_un.S_addr = inet_addr(szAddress);
-	//sendto(pThis->m_socketClient, sendData, strCode.GetLength(), 0, (SOCKADDR*)&addr, len);
-	//recvfrom(pThis->m_socketClient, recvData, 100, 0, (SOCKADDR*)&addr, &len);
-	//CString price(recvData);
-
 	CString price = _T("");
 	auto iter = pThis->m_highLimit.find(code);
 	if (iter != pThis->m_highLimit.end())
 		price = CString(iter->second);
 
-	//获取买入数量	
+	//获取买入数量	*0.99确保有足够的钱
 	int nAmount = ((int)(pThis->m_balance.dEnable * 0.99 / (atof(T2A(price))*amount)) / 100 ) * 100;
 	CString strAmount;
 	strAmount.Format(_T("%d"), nAmount);
@@ -654,12 +627,9 @@ HBRUSH CAT_2Dlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 	// TODO:  在此更改 DC 的任何特性
 	int STATIC_FONT[] = { IDC_LAB_ENABLE ,IDC_LAB_ALL };
-	for (int i = 0; i < sizeof(STATIC_FONT) / sizeof(int); ++i)
-	{
+	for (int i = 0; i < sizeof(STATIC_FONT) / sizeof(int); ++i)	
 		if (pWnd->GetDlgCtrlID() == STATIC_FONT[i])
-			pDC->SetTextColor(RGB(255, 0, 0));
-	}
-
+			pDC->SetTextColor(RGB(255, 0, 0));	
 
 	// TODO:  如果默认的不是所需画笔，则返回另一个画笔
 	return hbr;
@@ -718,8 +688,7 @@ void CAT_2Dlg::GetHighLimit(LPVOID lp) {
 	pThis->DivString(acode, code);
 	pThis->DivString(aprice, price);
 	
-	for (int i = 0; i < acode.GetCount(); ++i)
-	{
+	for (int i = 0; i < acode.GetCount(); ++i){
 		if (i == acode.GetCount() - 1)
 			pThis->m_highLimit.insert(std::pair<CString, CString>(acode.GetAt(i).Left(6), aprice.GetAt(i).Left(aprice.GetAt(i).GetLength()-3)));;
 		pThis->m_highLimit.insert(std::pair<CString, CString>(acode.GetAt(i).Left(6), aprice.GetAt(i)));
