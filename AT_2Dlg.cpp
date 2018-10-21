@@ -21,7 +21,7 @@ std::mutex mtx;
 const int nPort = 9000;
 const char* szAddress = "139.196.38.147";
 
-CAT_2Dlg* pThis = nullptr;
+CAT_2Dlg* pAutoTrader = nullptr;
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -80,19 +80,22 @@ void CAT_2Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_DATE_BUY2, m_time2);
 	DDX_Control(pDX, IDC_DATE_SELL1, m_time3);
 	DDX_Control(pDX, IDC_DATE_SELL2, m_time4);
-	DDX_Control(pDX, IDC_LAB_ENABLE, m_labEnable);
 	DDX_Control(pDX, IDC_LAB_ALL, m_labAsset);
+	DDX_Control(pDX, IDC_LAB_ENABLE, m_labEnable);
+	
 }
 
 BEGIN_MESSAGE_MAP(CAT_2Dlg, CDialog)
-	ON_WM_SYSCOMMAND()
+	
 	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BTN_START, &CAT_2Dlg::OnBnClickedBtnStart)
-	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST, &CAT_2Dlg::OnLvnItemchangedList)
-	ON_BN_CLICKED(IDC_BTN_FLUSH, &CAT_2Dlg::OnBnClickedBtnFlush)
-	ON_WM_CTLCOLOR()
 	ON_WM_CLOSE()
+	ON_WM_CTLCOLOR()
+	ON_WM_SYSCOMMAND()
+	ON_WM_QUERYDRAGICON()	
+	ON_BN_CLICKED(IDC_BTN_START, OnBnClickedBtnStart)	
+	ON_BN_CLICKED(IDC_BTN_FLUSH, OnBnClickedBtnFlush)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST, OnLvnItemchangedList)
+
 END_MESSAGE_MAP()
 
 
@@ -109,14 +112,12 @@ BOOL CAT_2Dlg::OnInitDialog()
 	ASSERT(IDM_ABOUTBOX < 0xF000);
 
 	CMenu* pSysMenu = GetSystemMenu(FALSE);
-	if (pSysMenu != NULL)
-	{
+	if (pSysMenu != NULL){
 		BOOL bNameValid;
 		CString strAboutMenu;
 		bNameValid = strAboutMenu.LoadString(IDS_ABOUTBOX);
 		ASSERT(bNameValid);
-		if (!strAboutMenu.IsEmpty())
-		{
+		if (!strAboutMenu.IsEmpty()){
 			pSysMenu->AppendMenu(MF_SEPARATOR);
 			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
 		}
@@ -138,20 +139,20 @@ BOOL CAT_2Dlg::OnInitDialog()
 	_stprintf_s(szCaption, _T("%s %s"), szCaption, szVersion);	
 	SetWindowText(szCaption);
 
-	pThis = this;
-	InitialAutoTrader2();
+	pAutoTrader = this;
+	InitialAutoTraderUI();
 
 	//从服务器获取涨停价格表
 	//发送端网络配置
 
 	if (!AfxSocketInit()){
-		AfxMessageBox(_T("加载套接字失败"));
+		AfxMessageBox(_T("加载套接字失败_闪电下单功能不可用")); 
 		return 0;
 	}
 
 	m_socketClient = socket(AF_INET, SOCK_STREAM, 0);
 	if (INVALID_SOCKET == m_socketClient){
-		AfxMessageBox(_T("套接字创建失败"));
+		AfxMessageBox(_T("套接字创建失败_闪电下单功能不可用"));
 		return 0;
 	}
 
@@ -161,22 +162,28 @@ BOOL CAT_2Dlg::OnInitDialog()
 	addr.sin_port = htons(nPort);
 	addr.sin_addr.S_un.S_addr = inet_addr(szAddress);
 	if (connect(m_socketClient, (sockaddr*)&addr, sizeof(sockaddr))) {
-		MessageBox(_T("尝试与涨停价获取服务器的连接失败!"));
+		MessageBox(_T("尝试与涨停价获取服务器的连接失败!_闪电下单功能不可用"));
 		return  0;
 	}
+
+	//设置超时延迟
+	int nTimeout=5000;
+	if (SOCKET_ERROR == setsockopt(m_socketClient, SOL_SOCKET, SO_RCVTIMEO,
+								   (char *)&nTimeout, sizeof(int))){
+		MessageBox(_T("接收超时设置失败!_闪电下单功能不可用"));
+		return 0;
+	}
+
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
 void CAT_2Dlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
-	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
-	{
+	if ((nID & 0xFFF0) == IDM_ABOUTBOX){
 		CAboutDlg dlgAbout;
 		dlgAbout.DoModal();
-	}
-	else
-	{
+	}else{
 		CDialog::OnSysCommand(nID, lParam);
 	}
 }
@@ -187,8 +194,7 @@ void CAT_2Dlg::OnSysCommand(UINT nID, LPARAM lParam)
 
 void CAT_2Dlg::OnPaint()
 {
-	if (IsIconic())
-	{
+	if (IsIconic()){
 		CPaintDC dc(this); // 用于绘制的设备上下文
 
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
@@ -203,9 +209,7 @@ void CAT_2Dlg::OnPaint()
 
 		// 绘制图标
 		dc.DrawIcon(x, y, m_hIcon);
-	}
-	else
-	{
+	}else{
 		CDialog::OnPaint();
 	}
 }
@@ -410,7 +414,7 @@ void CAT_2Dlg::KeepHexinActivate(LPVOID lp)
 	}
 }
 
-void CAT_2Dlg::InitialAutoTrader2()
+void CAT_2Dlg::InitialAutoTraderUI()
 {
 	SetDlgItemText(IDC_EDT_BUY_TAIL, _T("68"));
 	SetDlgItemText(IDC_EDT_SELL_TAIL, _T("88"));
@@ -565,7 +569,7 @@ void CAT_2Dlg::OnBnClickedBtnFlush()
 		m_flashBuy->Create(IDD_DLG_QUCIKINS, GetDesktopWindow());
 		m_flashBuy->SetCallBack(CallBack_FlushBuy);
 		m_flashBuy->ShowWindow(TRUE);
-		std::thread t(GetHighLimit, pThis);
+		std::thread t(GetHighLimit, pAutoTrader);
 		t.detach();		
 	}else if(m_flashBuy->IsWindowVisible()){
 		m_flashBuy->ShowWindow(false);
@@ -581,20 +585,20 @@ void CAT_2Dlg::CallBack_FlushBuy(CString code, int amount)
 	USES_CONVERSION;
 
 	CString price = _T("");
-	auto iter = pThis->m_highLimit.find(code);
-	if (iter != pThis->m_highLimit.end())
+	auto iter = pAutoTrader->m_highLimit.find(code);
+	if (iter != pAutoTrader->m_highLimit.end())
 		price = CString(iter->second);
 
 	//获取买入数量	*0.99确保有足够的钱
-	int nAmount = ((int)(pThis->m_balance.dEnable * 0.99 / (atof(T2A(price))*amount)) / 100 ) * 100;
+	int nAmount = ((int)(pAutoTrader->m_balance.dEnable * 0.99 / (atof(T2A(price))*amount)) / 100 ) * 100;
 	CString strAmount;
 	strAmount.Format(_T("%d"), nAmount);
 
 	mtx.lock();
-	pThis->m_hexin.FlashBuyStock(code, price, strAmount);
+	pAutoTrader->m_hexin.FlashBuyStock(code, price, strAmount);
 	mtx.unlock();
-	pThis->UpdateBalance_once();
-	pThis->Recort(code,_T(""),_T("买入"), strAmount, price);
+	pAutoTrader->UpdateBalance_once();
+	pAutoTrader->Recort(code,_T(""),_T("买入"), strAmount, price);
 }
 
 void CAT_2Dlg::Recort(CString code_, CString name_, CString oper_, CString amount_, CString price_)
@@ -668,15 +672,16 @@ void CAT_2Dlg::GetHighLimit(LPVOID lp) {
 	
 	int len = 0;
 	bool bFinish = false;
-	sendto(pThis->m_socketClient, sendData, strlen(sendData), 0, (SOCKADDR*)&addr, len);
+	sendto(pAutoTrader->m_socketClient, sendData, strlen(sendData), 0, (SOCKADDR*)&addr, len);
 	CString strRecvData = _T("");
 	int ret = 0;	
 	Sleep(5000);
 
 	while (!bFinish) {
-		ret = recvfrom(pThis->m_socketClient, recvData, 100000, 0, (SOCKADDR*)&addr, &len);
+		ret = recv(pAutoTrader->m_socketClient, recvData, 100000, 0);
 		CString temp = CString(recvData);
 		strRecvData += CString(recvData);
+		if (temp.Compare(_T("")) == 0) { AfxMessageBox(_T("未能从服务器获取涨停价格表")); return; }
 		if (temp.Right(3).Compare(_T("end")) == 0) bFinish = true;
 	}	
 	
@@ -685,16 +690,16 @@ void CAT_2Dlg::GetHighLimit(LPVOID lp) {
 
 	CStringArray acode;
 	CStringArray aprice;
-	pThis->DivString(acode, code);
-	pThis->DivString(aprice, price);
+	pAutoTrader->DivString(acode, code);
+	pAutoTrader->DivString(aprice, price);
 	
 	for (int i = 0; i < acode.GetCount(); ++i){
 		if (i == acode.GetCount() - 1)
-			pThis->m_highLimit.insert(std::pair<CString, CString>(acode.GetAt(i).Left(6), aprice.GetAt(i).Left(aprice.GetAt(i).GetLength()-3)));;
-		pThis->m_highLimit.insert(std::pair<CString, CString>(acode.GetAt(i).Left(6), aprice.GetAt(i)));
+			pAutoTrader->m_highLimit.insert(std::pair<CString, CString>(acode.GetAt(i).Left(6), aprice.GetAt(i).Left(aprice.GetAt(i).GetLength()-3)));;
+		pAutoTrader->m_highLimit.insert(std::pair<CString, CString>(acode.GetAt(i).Left(6), aprice.GetAt(i)));
 	}		
 
-	if (!pThis->m_highLimit.size())
+	if (!pAutoTrader->m_highLimit.size())
 		AfxMessageBox(_T("未能从服务器获取涨停价格表"));
 	delete[] recvData;
 

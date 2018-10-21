@@ -49,7 +49,7 @@ public:
 
 	
 	void InitialParam();	
-	void InitialAutoTrader2();
+	void InitialAutoTraderUI();
 	void UpdateBuySellCount();
 	void UpdateBalance_once();
 	void GetBalance(TradeBalance& balance);
