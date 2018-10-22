@@ -50,6 +50,17 @@ CString CDzh365::GetStockCode()
 	return temp;
 }
 
+CString CDzh365::GetStockName()
+{
+	CString nameText;
+	GetDZHHwnd();
+	CWnd* wnd = CWnd::FromHandle(m_hwnd);
+	wnd->GetWindowTextW(nameText);
+	nameText = nameText.Mid(nameText.Find(_T("[")) + 1);
+	nameText = nameText.Left(nameText.GetLength() - 1);
+	return nameText;
+}
+
 BOOL CDzh365::MyEnumerateLoadedModulesProc64(PTSTR ModuleName,
 	DWORD64 ModuleBase,
 	ULONG ModuleSize,

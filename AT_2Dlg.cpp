@@ -290,6 +290,10 @@ void CAT_2Dlg::OnBnClickedBtnStart()
 		//开启同花顺预警卖出线程		
 		std::thread thread_WarnSell(StartHexinWarnSell, (LPVOID)this);
 		thread_WarnSell.detach();
+
+		//下载涨停价格表
+		std::thread thread_GetHighLimit(GetHighLimit, (LPVOID)this);
+		thread_GetHighLimit.detach();
 		
 	}else {
 
@@ -568,9 +572,7 @@ void CAT_2Dlg::OnBnClickedBtnFlush()
 		m_flashBuy = std::make_shared<CDlgFlashBuy>();
 		m_flashBuy->Create(IDD_DLG_QUCIKINS, GetDesktopWindow());
 		m_flashBuy->SetCallBack(CallBack_FlushBuy);
-		m_flashBuy->ShowWindow(TRUE);
-		std::thread t(GetHighLimit, pAutoTrader);
-		t.detach();		
+		m_flashBuy->ShowWindow(TRUE);	
 	}else if(m_flashBuy->IsWindowVisible()){
 		m_flashBuy->ShowWindow(false);
 	}else {
@@ -591,6 +593,10 @@ void CAT_2Dlg::CallBack_FlushBuy(CString code, int amount)
 
 	//获取买入数量	*0.99确保有足够的钱
 	int nAmount = ((int)(pAutoTrader->m_balance.dEnable * 0.99 / (atof(T2A(price))*amount)) / 100 ) * 100;
+	if (nAmount <= 0) {
+		AfxMessageBox(_T("当前可用金额不够买入选择数量的股票"));
+		return;
+	}
 	CString strAmount;
 	strAmount.Format(_T("%d"), nAmount);
 
@@ -606,9 +612,16 @@ void CAT_2Dlg::Recort(CString code_, CString name_, CString oper_, CString amoun
 	CTime time = CTime::GetCurrentTime();
 	CString strTime = time.Format("%H:%M:%S");
 
+
+
 	CString code, name,oper, amount, price;
 	code = code_;
 	name = name_;
+
+	//如果股票名称为空，则为闪电下单的记录
+	if (name.Compare(_T("")) == 0)
+		name = m_dzh365.GetStockName();
+
 	oper = _T("买入");
 	amount = amount_;
 	price = price_;

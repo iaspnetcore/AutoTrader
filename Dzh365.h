@@ -22,6 +22,7 @@ public:
 	bool GetDZHHwnd();
 	HWND GetDZHHwnd(HWND* hwnd);
 	CString GetStockCode();
+	CString GetStockName();
 	DWORD GetBaseAddr();
 
 private:

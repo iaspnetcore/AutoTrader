@@ -236,7 +236,7 @@ void CDlgFlashBuy::ThreadCapture(LPVOID lp)
 	while (true){
 		Sleep(100);
 		if (pDlg->m_CodeAddr == NULL) {
-			HWND  hwnd = nullptr;
+			HWND  hwnd = nullptr;			
 			pDlg->GetDZHHwnd(&hwnd);
 			pDlg->GetBaseAddr(hwnd);
 		}
@@ -250,7 +250,7 @@ void CDlgFlashBuy::ThreadCapture(LPVOID lp)
 HWND CDlgFlashBuy::GetDZHHwnd(HWND* hwnd)
 {
 	HWND DesktopHwnd = ::GetDesktopWindow();
-	EnumChildWindows(DesktopHwnd, EnumChildProc, LPARAM(hwnd));
+	EnumChildWindows(DesktopHwnd, EnumChildProc, LPARAM(hwnd));	
 	return *hwnd;
 }
 
