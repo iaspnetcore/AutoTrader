@@ -130,7 +130,6 @@ BOOL CAT_2Dlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码		
 
-
 	//版本显示
 	TCHAR szVersion[MAX_PATH];
 	GetAppVersion(szVersion, MAX_PATH);
@@ -278,9 +277,12 @@ void CAT_2Dlg::OnBnClickedBtnStart()
 		std::thread thread_keepActivate(KeepHexinActivate, (LPVOID)this);
 		thread_keepActivate.detach();		
 
-		//定时更新持仓		
-		std::thread thread_updateBalance(UpdateBalance, (LPVOID)this);
-		thread_updateBalance.detach();
+		//定时更新持仓	不需要定时更新持仓	
+		//std::thread thread_updateBalance(UpdateBalance, (LPVOID)this);
+		//thread_updateBalance.detach();
+
+		//启动时更新一次持仓
+		UpdateBalance_once();
 
 		//开启同花顺预警买入线程		
 		std::thread thread_WarnBuy(StartHexinWarnBuy, (LPVOID)this);
@@ -338,8 +340,7 @@ void CAT_2Dlg::StartHexinWarnBuy(LPVOID lp)
 			mtx.lock();
 			if (pDlg->m_hexin.HexinWarnBuy(pDlg->m_nBuyAmount)) {				
 				pDlg->m_nBuyCount--;
-				pDlg->UpdateBuySellCount();
-				//将操作结果写到表格 并记录到文件中
+				pDlg->UpdateBuySellCount();				
 				pDlg->Recort(pDlg->m_nBuyAmount,_T("买入"));
 				pDlg->UpdateBalance_once();
 
@@ -353,8 +354,7 @@ void CAT_2Dlg::StartHexinWarnBuy(LPVOID lp)
 			if (pDlg->m_hexin.HexinWarnBuy(nAmount)) {
 				
 				pDlg->m_nBuyCount--;
-				pDlg->UpdateBuySellCount();
-				//将操作结果写到表格 并记录到文件中
+				pDlg->UpdateBuySellCount();				
 				pDlg->Recort(nAmount, _T("买入"));
 				pDlg->UpdateBalance_once();
 			}
@@ -384,8 +384,7 @@ void CAT_2Dlg::StartHexinWarnSell(LPVOID lp)
 			mtx.lock();
 			if (pDlg->m_hexin.HexinWarnSell(pDlg->m_nSellAmount)) {
 				pDlg->m_nSellCount--;
-				pDlg->UpdateBuySellCount();
-				//将操作结果写到表格 并记录到文件中
+				pDlg->UpdateBuySellCount();				
 				pDlg->Recort(pDlg->m_nBuyAmount, _T("卖出"));
 				pDlg->UpdateBalance_once();
 			}
@@ -397,8 +396,7 @@ void CAT_2Dlg::StartHexinWarnSell(LPVOID lp)
 			nAmount = nAmount / 100 * 100;
 			if (pDlg->m_hexin.HexinWarnSell(nAmount)) {
 				pDlg->m_nSellCount--;
-				pDlg->UpdateBuySellCount();
-				//将操作结果写到表格 并记录到文件中
+				pDlg->UpdateBuySellCount();				
 				pDlg->Recort(nAmount, _T("卖出"));
 				pDlg->UpdateBalance_once();
 			}
@@ -426,7 +424,7 @@ void CAT_2Dlg::InitialAutoTraderUI()
 	GetDlgItem(IDC_EDT_SELL_TAIL)->EnableWindow(false);
 
 	SetDlgItemText(IDC_EDT_BUY_COUNT, _T("3"));
-	SetDlgItemText(IDC_EDT_SELL_COUNT, _T("3"));
+	SetDlgItemText(IDC_EDT_SELL_COUNT, _T("10"));
 
 	CTime currentTime = CTime::GetCurrentTime();
 	CTime time1(currentTime.GetYear(), currentTime.GetMonth(), currentTime.GetDay(), 9, 15, 0);
@@ -491,8 +489,8 @@ void CAT_2Dlg::InitialParam()
 
 
 	CString strSellCount, strSellAmount;
-	GetDlgItemText(IDC_EDT_BUY_AMOUNT, strSellAmount);
-	GetDlgItemText(IDC_EDT_BUY_COUNT, strSellCount);
+	GetDlgItemText(IDC_EDT_SELL_AMOUNT, strSellAmount);
+	GetDlgItemText(IDC_EDT_SELL_COUNT, strSellCount);
 	m_nSellCount = atoi(T2A(strSellCount));
 	m_nSellAmount = atoi(T2A(strSellAmount));
 
