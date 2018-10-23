@@ -385,7 +385,7 @@ void CAT_2Dlg::StartHexinWarnSell(LPVOID lp)
 			if (pDlg->m_hexin.HexinWarnSell(pDlg->m_nSellAmount)) {
 				pDlg->m_nSellCount--;
 				pDlg->UpdateBuySellCount();				
-				pDlg->Recort(pDlg->m_nBuyAmount, _T("Âô³ö"));
+				pDlg->Recort(pDlg->m_nSellAmount, _T("Âô³ö"));
 				pDlg->UpdateBalance_once();
 			}
 			mtx.unlock();
