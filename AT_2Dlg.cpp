@@ -446,7 +446,7 @@ void CAT_2Dlg::InitialAutoTraderUI()
 	m_listCtrl.InsertColumn(0, _T("操作"), LVCFMT_CENTER, 65);//插入列
 	m_listCtrl.InsertColumn(0, _T("名称"), LVCFMT_CENTER, 80);//插入列
 	m_listCtrl.InsertColumn(0, _T("代码"), LVCFMT_CENTER, 80);//插入列
-	m_listCtrl.InsertColumn(0, _T("时间"), LVCFMT_CENTER, 85);//插入列
+	m_listCtrl.InsertColumn(0, _T("时间"), LVCFMT_CENTER, 81);//插入列
 
 	LVCOLUMN col;
 	col.mask = LVCF_FMT;
@@ -568,6 +568,9 @@ void CAT_2Dlg::Recort(int amount_ , CString oper)
 void CAT_2Dlg::OnBnClickedBtnFlush()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	if (!m_warnStart)
+		OnBnClickedBtnStart();
+
 	if (m_flashBuy == nullptr){	
 		m_flashBuy = std::make_shared<CDlgFlashBuy>();
 		m_flashBuy->Create(IDD_DLG_QUCIKINS, GetDesktopWindow());
