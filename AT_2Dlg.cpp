@@ -231,7 +231,7 @@ void CAT_2Dlg::UpdateBalance(LPVOID lp)
 {
 	CAT_2Dlg* pDlg = (CAT_2Dlg*)lp;
 	while (pDlg->m_hexinUpdateBalance){	
-		Sleep(100);
+		Sleep(10000);
 		TradeBalance balance;
 		RestBalance(balance);
 		pDlg->GetBalance(balance);
@@ -239,8 +239,7 @@ void CAT_2Dlg::UpdateBalance(LPVOID lp)
 		strTemp.Format(_T("%0.f"), balance.dEnable);
 		pDlg->SetDlgItemTextW(IDC_LAB_ENABLE, strTemp);
 		strTemp.Format(_T("%0.f"), balance.dAsset);
-		pDlg->SetDlgItemTextW(IDC_LAB_ALL, strTemp);
-		Sleep(10000);
+		pDlg->SetDlgItemTextW(IDC_LAB_ALL, strTemp);		
 	}
 }
 
@@ -278,8 +277,9 @@ void CAT_2Dlg::OnBnClickedBtnStart()
 		thread_keepActivate.detach();		
 
 		//定时更新持仓	不需要定时更新持仓	
-		//std::thread thread_updateBalance(UpdateBalance, (LPVOID)this);
-		//thread_updateBalance.detach();
+		//2018-10-25 想了一下还是应该开起来，如果不通过本程序下单的话，资金就会对不上
+		std::thread thread_updateBalance(UpdateBalance, (LPVOID)this);
+		thread_updateBalance.detach();
 
 		//启动时更新一次持仓
 		UpdateBalance_once();
@@ -612,8 +612,6 @@ void CAT_2Dlg::Recort(CString code_, CString name_, CString oper_, CString amoun
 {
 	CTime time = CTime::GetCurrentTime();
 	CString strTime = time.Format("%H:%M:%S");
-
-
 
 	CString code, name,oper, amount, price;
 	code = code_;
