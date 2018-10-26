@@ -234,9 +234,8 @@ int CHexin::GetBidAmount()
 	USES_CONVERSION;
 	int ret = 0;
 	wchar_t szText[20];
-	HWND hwnd_amount = NULL;
-	if (!hBuyStock)
-		GetBuyStockHwnd();
+	HWND hwnd_amount = NULL;	
+	GetBuyStockHwnd();
 	hwnd_amount = FindWindowChildEx(hBuyStock, NULL, _T("Edit"), NULL, 3);
 	::SendMessage(hwnd_amount, WM_GETTEXT, 10, LPARAM(szText));
 	ret = atoi( T2A( CString(szText).GetBuffer()) );
@@ -248,9 +247,8 @@ int CHexin::GetAskAmount()
 	USES_CONVERSION;
 	int ret = 0;
 	wchar_t szText[20];
-	HWND hwnd_amount = NULL;
-	if (!hSellStock)
-		GetSellStockHwnd();
+	HWND hwnd_amount = NULL;	
+	GetSellStockHwnd();
 	hwnd_amount = FindWindowChildEx(hSellStock, NULL, _T("Edit"), NULL, 3);
 	::SendMessage(hwnd_amount, WM_GETTEXT, 10, LPARAM(szText));
 	ret = atoi(T2A(CString(szText).GetBuffer()));
