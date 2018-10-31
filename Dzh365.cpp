@@ -84,6 +84,6 @@ DWORD CDzh365::GetBaseAddr()
 		return 0;
 	}
 	EnumerateLoadedModules64(m_dzhHandle,
-		(PENUMLOADED_MODULES_CALLBACK64)MyEnumerateLoadedModulesProc64,
-		(PVOID)&m_codeAddr);
+							(PENUMLOADED_MODULES_CALLBACK64)MyEnumerateLoadedModulesProc64,
+							(PVOID)&m_codeAddr);
 }

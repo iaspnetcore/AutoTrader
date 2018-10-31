@@ -167,6 +167,9 @@ HWND CHexin::GetBuyStockHwnd()
 	HWND child_hwnd = NULL;	
 	HWND buyStockBtn_hwnd = NULL;
 
+	GetHexinHwnd();
+	GetAfxMDIFrame42sHwnd();
+
 	if (!hAfxMDIFrame42s) return ret;
 
 	while (true) {
@@ -191,6 +194,9 @@ HWND CHexin::GetSellStockHwnd()
 	HWND ret = NULL;
 	HWND child_hwnd = NULL;	
 	HWND sellStockBtn_hwnd = NULL;
+
+	GetHexinHwnd();
+	GetAfxMDIFrame42sHwnd();
 
 	if (!hAfxMDIFrame42s) return ret;
 

@@ -239,7 +239,8 @@ void CAT_2Dlg::UpdateBalance(LPVOID lp)
 		strTemp.Format(_T("%0.f"), balance.dEnable);
 		pDlg->SetDlgItemTextW(IDC_LAB_ENABLE, strTemp);
 		strTemp.Format(_T("%0.f"), balance.dAsset);
-		pDlg->SetDlgItemTextW(IDC_LAB_ALL, strTemp);		
+		pDlg->SetDlgItemTextW(IDC_LAB_ALL, strTemp);	
+		pDlg->m_balance = balance;
 	}
 }
 
@@ -278,6 +279,7 @@ void CAT_2Dlg::OnBnClickedBtnStart()
 
 		//定时更新持仓	不需要定时更新持仓	
 		//2018-10-25 想了一下还是应该开起来，如果不通过本程序下单的话，资金就会对不上
+		//实际问题： 加入资金，抽出资金时也对不上
 		std::thread thread_updateBalance(UpdateBalance, (LPVOID)this);
 		thread_updateBalance.detach();
 
@@ -286,8 +288,7 @@ void CAT_2Dlg::OnBnClickedBtnStart()
 
 		//开启同花顺预警买入线程		
 		std::thread thread_WarnBuy(StartHexinWarnBuy, (LPVOID)this);
-		thread_WarnBuy.detach();
-		
+		thread_WarnBuy.detach();		
 
 		//开启同花顺预警卖出线程		
 		std::thread thread_WarnSell(StartHexinWarnSell, (LPVOID)this);
