@@ -21,6 +21,7 @@ public:
 
 	static HWND FindWindowChildEx(HWND hwndParent, HWND hwndChild, LPCTSTR lpszClass, LPCTSTR lpszWindow, int count);
 	static void SendVirtualKey(HWND hwnd, SHORT vk);
+	void TradeWndRefresh();	
 
 public:
 	
@@ -28,11 +29,12 @@ public:
 	bool GetAllHwnd();
 
 	HWND GetHexinHwnd();	
+	HWND GetAfxMDIFrame42sHwnd();
+	HWND GetPositionHwnd();
 	HWND GetBuyStockHwnd();
 	HWND GetSellStockHwnd();	
 	HWND GetToolBarHolderHwnd();
-	HWND GetToolBarBoxHwnd();
-	HWND GetAfxMDIFrame42sHwnd();
+	HWND GetToolBarBoxHwnd();	
 	HWND GetToolBarMarketHwnd();
 
 	bool KeepHexinActivate();
@@ -58,16 +60,20 @@ public:
 	bool FlashBuyStock(CString strStock,CString strPrice,CString strAmount);
 	bool FlashSellStock(CString strStock, CString strPrice, CString strAmount);
 	bool WaitForDone(HWND hWndCtrl, enum WaitForClass nClass, char *szValue, int nInterval, int nTimeout);
+	
 
 private:
 
 	TradeBalance m_balance;
 	HWND hHexin = NULL;
 	HWND hAfxMDIFrame42s = NULL;
+	HWND hPosition = NULL;//持仓窗口
 	HWND hBuyStock = NULL;//买股票窗口
 	HWND hSellStock = NULL;//卖股票窗口
-	HWND hToolBarBox = NULL;
+	HWND hToolBarBox = NULL;//顶部栏窗口
 	HWND hToolBarMarket = NULL;//菜单栏市场框
 	HWND hToolBarHolder = NULL;//菜单栏股东帐户框
+
+	
 };
 

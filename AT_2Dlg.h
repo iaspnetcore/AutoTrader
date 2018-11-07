@@ -42,7 +42,7 @@ public:
 	static void StartHexinWarnSell(LPVOID lp);
 	static void KeepHexinActivate(LPVOID lp);
 	static void CallBack_FlushBuy(CString code, int amount);
-	static void GetHighLimit(LPVOID lp);//从服务器获取涨停价格表
+	static void GetHighLimit(LPVOID lp);//从服务器获取涨停价格表	
 
 
 public:

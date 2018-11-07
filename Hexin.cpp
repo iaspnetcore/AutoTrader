@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Hexin.h"
-
+#include <thread>
+#include <mutex>
 
 CHexin::CHexin()
 {
@@ -240,8 +241,7 @@ int CHexin::GetBidAmount()
 	USES_CONVERSION;
 	int ret = 0;
 	wchar_t szText[20];
-	HWND hwnd_amount = NULL;	
-	GetBuyStockHwnd();
+	HWND hwnd_amount = NULL;		
 	hwnd_amount = FindWindowChildEx(hBuyStock, NULL, _T("Edit"), NULL, 3);
 	::SendMessage(hwnd_amount, WM_GETTEXT, 10, LPARAM(szText));
 	ret = atoi( T2A( CString(szText).GetBuffer()) );
@@ -254,7 +254,6 @@ int CHexin::GetAskAmount()
 	int ret = 0;
 	wchar_t szText[20];
 	HWND hwnd_amount = NULL;	
-	GetSellStockHwnd();
 	hwnd_amount = FindWindowChildEx(hSellStock, NULL, _T("Edit"), NULL, 3);
 	::SendMessage(hwnd_amount, WM_GETTEXT, 10, LPARAM(szText));
 	ret = atoi(T2A(CString(szText).GetBuffer()));
@@ -272,7 +271,7 @@ int CHexin::HexinWarnBuy(int amount)
 	CString strAmount;
 	strAmount.Format(_T("%d"), amount);
 
-	HWND priceHwnd = NULL;
+	HWND priceHwnd = NULL;	
 	priceHwnd = FindWindowChildEx(hBuyStock, NULL, _T("Edit"), NULL, 2);
 	if (!priceHwnd)  return ret;
 	::SendMessage(priceHwnd, WM_SETTEXT, 0, (LPARAM)(LPCTSTR)strPrice);
@@ -303,7 +302,7 @@ int CHexin::HexinWarnSell(int amount)
 	CString strAmount;
 	strAmount.Format(_T("%d"), amount);
 
-	HWND priceHwnd = NULL;
+	HWND priceHwnd = NULL;	
 	priceHwnd = FindWindowChildEx(hSellStock, NULL, _T("Edit"), NULL, 2);
 	if (!priceHwnd)  return ret;
 	::SendMessage(priceHwnd, WM_SETTEXT, 0, (LPARAM)(LPCTSTR)strPrice);
@@ -391,6 +390,7 @@ CString CHexin::GetStockCodeSell()
 	::SendMessage(hwnd_code, WM_GETTEXT, 10, LPARAM(szText));
 	return CString(szText);
 }
+
 CString CHexin::GetStockNameSell()
 {
 	USES_CONVERSION;
@@ -482,6 +482,21 @@ HWND CHexin::GetAfxMDIFrame42sHwnd()
 	else return NULL;
 }
 
+HWND CHexin::GetPositionHwnd()
+{
+	wchar_t szText[50];
+	HWND hwnd_Position = NULL;
+	HWND hwnd_Static = NULL;
+	while (true) {
+		hwnd_Position = ::FindWindowEx(hAfxMDIFrame42s, hwnd_Position, _T("#32770"), NULL);
+		if (!hwnd_Position) return NULL;
+		hwnd_Static = ::FindWindowEx(hwnd_Position, NULL, _T("Static"), _T("查询资金股票"));
+		if (!hwnd_Static) continue;
+		else return hwnd_Position;
+	}
+	return NULL;
+}
+
 HWND CHexin::GetToolBarBoxHwnd()
 {
 	HWND hToolBar = ::FindWindowEx(hHexin, NULL, _T("ToolbarWindow32"), NULL);
@@ -494,13 +509,31 @@ HWND CHexin::GetToolBarBoxHwnd()
 bool CHexin::GetAllHwnd()
 {
 	bool ret = false;
-	if (!GetHexinHwnd()) return ret;
-	if (!GetAfxMDIFrame42sHwnd()) return ret;
-	if (!GetBuyStockHwnd()) return ret;
-	if (!GetSellStockHwnd()) return ret;
-	if (!GetToolBarBoxHwnd()) return ret;
-	if (!GetToolBarHolderHwnd()) return ret;
-	if (!GetToolBarMarketHwnd()) return ret;
+	if (!(hHexin=GetHexinHwnd())) return ret;
+	if (!(hAfxMDIFrame42s = GetAfxMDIFrame42sHwnd())) return ret;
+	if (!(hPosition = GetPositionHwnd())) return ret;
+	if (!(hBuyStock = GetBuyStockHwnd())) return ret;
+	if (!(hSellStock = GetSellStockHwnd())) return ret;
+	if (!(hToolBarBox = GetToolBarBoxHwnd())) return ret;
+	if (!(hToolBarMarket = GetToolBarHolderHwnd())) return ret;
+	if (!(hToolBarHolder = GetToolBarMarketHwnd())) return ret;
 
 	return true;
 }
+
+void CHexin::TradeWndRefresh()
+{
+	
+	if (hHexin && !::IsWindow(hHexin) ||
+		hPosition && !::IsWindow(hPosition) ||
+		hBuyStock && !::IsWindow(hBuyStock) ||
+		hSellStock && !::IsWindow(hSellStock))
+	{
+		KeepHexinActivate();
+		GetAllHwnd();
+	}
+				
+
+	return;
+}
+

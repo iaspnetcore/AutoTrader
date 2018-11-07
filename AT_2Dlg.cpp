@@ -273,18 +273,21 @@ void CAT_2Dlg::OnBnClickedBtnStart()
 			return;
 		}
 
+		
+		m_hexin.GetAllHwnd();
+
 		//定时激活同花顺核心		
 		std::thread thread_keepActivate(KeepHexinActivate, (LPVOID)this);
-		thread_keepActivate.detach();		
+		thread_keepActivate.detach();	
+
+		//启动时更新一次持仓
+		UpdateBalance_once();
 
 		//定时更新持仓	不需要定时更新持仓	
 		//2018-10-25 想了一下还是应该开起来，如果不通过本程序下单的话，资金就会对不上
 		//实际问题： 加入资金，抽出资金时也对不上
 		std::thread thread_updateBalance(UpdateBalance, (LPVOID)this);
 		thread_updateBalance.detach();
-
-		//启动时更新一次持仓
-		UpdateBalance_once();
 
 		//开启同花顺预警买入线程		
 		std::thread thread_WarnBuy(StartHexinWarnBuy, (LPVOID)this);
@@ -298,7 +301,7 @@ void CAT_2Dlg::OnBnClickedBtnStart()
 		std::thread thread_GetHighLimit(GetHighLimit, (LPVOID)this);
 		thread_GetHighLimit.detach();
 		
-	}else {
+	}else {		
 
 		SetDlgItemText(IDC_BTN_START, _T("预警开始"));
 		GetDlgItem(IDC_EDT_BUY_AMOUNT)->EnableWindow(true);
@@ -411,9 +414,10 @@ void CAT_2Dlg::KeepHexinActivate(LPVOID lp)
 	CAT_2Dlg* pDlg = (CAT_2Dlg*)lp;
 	while (pDlg->m_hexinKeepActivate){
 		mtx.lock();
-		pDlg->m_hexin.KeepHexinActivate();
+		//pDlg->m_hexin.KeepHexinActivate();
+		pDlg->m_hexin.TradeWndRefresh();
 		mtx.unlock();
-		Sleep(60000);
+		Sleep(1000);
 	}
 }
 
@@ -732,3 +736,4 @@ void CAT_2Dlg::DivString(CStringArray& array , CString& test)
 		test = test.Right(test.GetLength() - index - 1);
 	}
 }
+
